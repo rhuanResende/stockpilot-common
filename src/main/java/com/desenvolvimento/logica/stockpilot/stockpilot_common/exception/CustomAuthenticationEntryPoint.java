@@ -1,6 +1,8 @@
 package com.desenvolvimento.logica.stockpilot.stockpilot_common.exception;
 
 import com.desenvolvimento.logica.stockpilot.stockpilot_common.dto.ApiResponse;
+import com.desenvolvimento.logica.stockpilot.stockpilot_common.enums.MessageCode;
+import com.desenvolvimento.logica.stockpilot.stockpilot_common.service.MessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +18,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final ObjectMapper objectMapper;
+    private final MessageService messageService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void commence(
@@ -30,7 +33,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         ApiResponse<Object> apiResponse = new ApiResponse<>(
                 false,
-                "Não autenticado",
+                messageService.get(MessageCode.ERROR_UNAUTHENTICATED.getCode()),
                 null
         );
 

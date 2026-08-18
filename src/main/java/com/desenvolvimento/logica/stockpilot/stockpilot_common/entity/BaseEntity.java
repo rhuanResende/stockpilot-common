@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @MappedSuperclass
 @Getter
 @Setter
-public class BaseEntity {
+public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -18,28 +18,27 @@ public class BaseEntity {
     private UUID id;
 
     @Column(name = "st_active", nullable = false)
-    private Boolean active;
+    private Boolean active = true;
 
     @Column(name = "dt_created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    @Column(name = "co_created_by", nullable = false)
+    @Column(name = "co_created_by")
     private UUID createdBy;
 
     @Column(name = "dt_updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
-    @Column(name = "co_updated_by", nullable = false)
+    @Column(name = "co_updated_by")
     private UUID updatedBy;
 
     @PrePersist
     public void prePersist() {
-        this.active = true;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 }
