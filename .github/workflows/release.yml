@@ -45,6 +45,8 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.version }}
           
+          echo $VERSION
+          
           HTTP_CODE=$(curl \
           -s \
           -o /dev/null \
