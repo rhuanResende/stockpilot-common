@@ -35,30 +35,6 @@ jobs:
       - name: Build
         run: mvn clean package
 
-      - name: Get project version
-        id: version
-        run: |
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
-      - name: Check if version already exists
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          
-          echo $VERSION
-          
-          HTTP_CODE=$(curl \
-          -s \
-          -o /dev/null \
-          -w "%{http_code}" \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          https://maven.pkg.github.com/rhuanResende/stockpilot-common/com/desenvolvimento/logica/stockpilot/stockpilot-common/$VERSION/)
-          
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "Version $VERSION already exists."
-            exit 1
-          fi
-
       - name: Deploy Package
         run: mvn deploy
         env:
