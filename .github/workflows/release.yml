@@ -52,7 +52,7 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           https://maven.pkg.github.com/rhuanResende/stockpilot-common/com/desenvolvimento/logica/stockpilot/stockpilot-common/$VERSION/)
           
-          if []; then
+          if [ "$HTTP_CODE" = "200" ]; then
             echo "Version $VERSION already exists."
             exit 1
           fi
