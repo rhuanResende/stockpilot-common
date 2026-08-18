@@ -1,0 +1,70 @@
+name: Release Library
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Configure Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Build
+        run: mvn clean package
+
+      - name: Get project version
+        id: version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Check if version already exists
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          
+          HTTP_CODE=$(curl \
+          -s \
+          -o /dev/null \
+          -w "%{http_code}" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          https://maven.pkg.github.com/rhuanResende/stockpilot-common/com/desenvolvimento/logica/stockpilot/stockpilot-common/$VERSION/)
+          
+          if []; then
+            echo "Version $VERSION already exists."
+            exit 1
+          fi
+
+      - name: Deploy Package
+        run: mvn deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          generate_release_notes: true
